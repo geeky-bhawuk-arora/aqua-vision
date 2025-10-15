@@ -1,31 +1,35 @@
-// Example: src/services/api.js
+const API_BASE_URL = 'http://localhost:8000/api';
 
-const API_BASE_URL = 'http://localhost:8000/api'; // <--- Ensure this matches your FastAPI server (e.g., port 8000)
-
+/**
+ * Sends the uploaded image to the backend for AI enhancement.
+ * @param {File} file The image file object.
+ * @returns {Promise<{success: boolean, data?: object, error?: string}>}
+ */
 export const enhanceImage = async (file) => {
   try {
     const formData = new FormData();
-    formData.append('file', file); // 'file' must match the parameter name in main.py's endpoint
+    // 'file' here must match the parameter name (UploadFile) in your FastAPI endpoint
+    formData.append('file', file); 
 
     const response = await fetch(`${API_BASE_URL}/enhance-image`, {
       method: 'POST',
       body: formData,
+      // FastAPI/Fetch automatically handles Content-Type for FormData
     });
 
+    // Check for HTTP errors (e.g., 400, 500)
     if (!response.ok) {
-      // Handle HTTP errors (e.g., 400 Bad Request, 500 Internal Server Error)
       const errorData = await response.json();
       console.error('API Error:', errorData.detail);
-      // The frontend fallback handles the 'false' success case, so we return it.
-      return { success: false, error: errorData.detail || 'Server error' };
+      return { success: false, error: errorData.detail || 'Server processing failed' };
     }
 
     const data = await response.json();
     return { success: true, data: data };
 
   } catch (error) {
+    // Handle network errors (server not running, CORS issues)
     console.error('Network or Fetch Error:', error);
-    // Return success: false to trigger the demo fallback in UploadPage.jsx
-    return { success: false, error: 'Network connection failed' };
+    return { success: false, error: 'Could not connect to the backend API' };
   }
 };

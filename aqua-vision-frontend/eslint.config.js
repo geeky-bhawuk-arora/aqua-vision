@@ -22,8 +22,14 @@ export default defineConfig([
         sourceType: 'module',
       },
     },
-    rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+   rules: {
+  'no-unused-vars': [
+    'error',
+    {
+      varsIgnorePattern: '^(motion|[A-Z_])', // ✅ ignore motion and capitalized vars
     },
+  ],
+},
+
   },
 ])

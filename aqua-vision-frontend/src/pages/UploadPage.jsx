@@ -9,6 +9,18 @@ const UploadPage = ({ isDark, showToast, setEnhancedData, setCurrentPage }) => {
   const [loading, setLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
 
+  const handleFile = useCallback((selectedFile) => {
+    if (!selectedFile.type.match('image/(jpg|jpeg|png)')) {
+      showToast('Please select a JPG or PNG image', 'error');
+      return;
+    }
+
+    setFile(selectedFile);
+    const reader = new FileReader();
+    reader.onloadend = () => setPreview(reader.result);
+    reader.readAsDataURL(selectedFile);
+  }, [showToast]);
+
   const handleDrag = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -27,19 +39,7 @@ const UploadPage = ({ isDark, showToast, setEnhancedData, setCurrentPage }) => {
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFile(e.dataTransfer.files[0]);
     }
-  }, []);
-
-  const handleFile = (selectedFile) => {
-    if (!selectedFile.type.match('image/(jpg|jpeg|png)')) {
-      showToast('Please select a JPG or PNG image', 'error');
-      return;
-    }
-
-    setFile(selectedFile);
-    const reader = new FileReader();
-    reader.onloadend = () => setPreview(reader.result);
-    reader.readAsDataURL(selectedFile);
-  };
+  }, [handleFile]);
 
   const handleEnhance = async () => {
     if (!file) {
@@ -112,7 +112,7 @@ const UploadPage = ({ isDark, showToast, setEnhancedData, setCurrentPage }) => {
           <input
             type="file"
             accept="image/jpeg,image/jpg,image/png"
-            onChange={(e) => handleFile(e.target.files[0])}
+            onChange={(e) => e.target.files && handleFile(e.target.files[0])}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
 

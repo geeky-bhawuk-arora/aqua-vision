@@ -1,35 +1,75 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
+import Navbar from './components/Navbar';
+import Toast from './components/Toast';
+import HomePage from './pages/HomePage';
+import UploadPage from './pages/UploadPage';
+import ResultsPage from './pages/ResultsPage';
+import AboutPage from './pages/AboutPage';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [currentPage, setCurrentPage] = useState('home');
+  const [isDark, setIsDark] = useState(true);
+  const [toast, setToast] = useState(null);
+  const [enhancedData, setEnhancedData] = useState(null);
+
+  const showToast = (message, type = 'info') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const toggleTheme = () => setIsDark(!isDark);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className={`min-h-screen ${isDark ? 'bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900' : 'bg-gradient-to-br from-blue-50 via-cyan-50 to-slate-100'} transition-colors duration-300`}>
+      <Navbar 
+        currentPage={currentPage} 
+        setCurrentPage={setCurrentPage} 
+        isDark={isDark} 
+        toggleTheme={toggleTheme} 
+      />
+      
+      <AnimatePresence mode="wait">
+        {currentPage === 'home' && (
+          <HomePage 
+            key="home" 
+            setCurrentPage={setCurrentPage} 
+            isDark={isDark} 
+          />
+        )}
+        {currentPage === 'upload' && (
+          <UploadPage 
+            key="upload" 
+            isDark={isDark} 
+            showToast={showToast} 
+            setEnhancedData={setEnhancedData} 
+            setCurrentPage={setCurrentPage} 
+          />
+        )}
+        {currentPage === 'results' && (
+          <ResultsPage 
+            key="results" 
+            isDark={isDark} 
+            enhancedData={enhancedData} 
+          />
+        )}
+        {currentPage === 'about' && (
+          <AboutPage 
+            key="about" 
+            isDark={isDark} 
+          />
+        )}
+      </AnimatePresence>
 
-export default App
+      <AnimatePresence>
+        {toast && (
+          <Toast 
+            key="toast" 
+            message={toast.message} 
+            type={toast.type} 
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
